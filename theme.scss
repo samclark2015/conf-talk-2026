@@ -1,0 +1,494 @@
+/*-- scss:defaults --*/
+// =====================================================================
+// Posit brand theme for reveal.js — Posit Conf 2026
+// Blue + gray, warmed by orange. Open Sans / Source Code Pro.
+// =====================================================================
+
+// ---- Fonts (shipped in assets/fonts/) ----
+@font-face {
+  font-family: "Open Sans";
+  src: url("assets/fonts/OpenSans.ttf") format("truetype-variations");
+  font-weight: 300 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Open Sans";
+  src: url("assets/fonts/OpenSans-Italic.ttf") format("truetype-variations");
+  font-weight: 300 800; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Source Code Pro";
+  src: url("assets/fonts/SourceCodePro.ttf") format("truetype-variations");
+  font-weight: 200 900; font-style: normal; font-display: swap;
+}
+
+// ---- Brand colors ----
+$posit-blue:   #447099;
+$posit-gray:   #404041;
+$posit-orange: #EE6331;
+$light-gray:   #717171;
+$off-white:    #F3F6F8;
+$dark-blue-1:  #111C26;
+$dark-blue-3:  #22384C;
+$blue-50:      #D0DBE5;
+
+// ---- reveal.js variable overrides ----
+$font-family-sans-serif: "Open Sans", "Arial", sans-serif;
+$font-family-monospace: "Source Code Pro", monospace;
+
+$body-bg: #FFFFFF;
+$body-color: $posit-gray;
+
+$presentation-heading-font: "Open Sans", "Arial", sans-serif;
+$presentation-heading-color: $posit-gray;
+$presentation-heading-font-weight: 600; // Light headlines
+$presentation-h1-font-size: 2.1em;
+$presentation-h2-font-size: 1.65em;
+$presentation-h3-font-size: 1.15em;
+$presentation-font-size-root: 28pt; // per review feedback: body text at 28pt
+
+$link-color: $posit-blue;
+$link-color-hover: #3276B5;
+$selection-bg: $blue-50;
+
+$code-block-font-size: 0.7em;
+
+/*-- scss:rules --*/
+
+// Custom
+.reveal .dark {
+  background-color: #22384C;
+}
+
+.reveal .lesson {
+  background-color: #E8EEF2;
+  border-left: 0.35em solid $posit-blue;
+  padding: 1.25em 1.5em;
+  text-align: left;
+}
+
+// Image and lesson side by side, centred on each other rather than stacked.
+// The figure takes a fixed share so the lesson's line breaks don't shift with
+// the image, and the image is capped in height so a tall source can't push the
+// text off the slide.
+.reveal .lesson-split {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2em;
+  text-align: left;
+}
+
+.reveal .lesson-split .split-figure {
+  flex: 0 0 38%;
+}
+
+.reveal .lesson-split .split-figure img {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+// Quarto wraps the image in its own <p>, whose block margin would break the
+// centring against the lesson box.
+.reveal .lesson-split .split-figure p {
+  margin: 0;
+}
+
+.reveal .lesson-split .lesson {
+  flex: 1 1 auto;
+}
+
+.reveal img.center-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border: 0.12em solid $posit-blue;
+  border-radius: 6px;
+  box-shadow: 0 0.45em 1em rgba(17, 28, 38, 0.16);
+}
+
+// Product mark on each "Attempt No.N" title slide, reusing the timeline's icons.
+// The dark title background would swallow two of the three — the Positron
+// Assistant mark is near-black and Databot's is a mid blue — so each sits on a
+// light chip. That also makes the three read as one series despite their
+// different palettes, at the cost of showing them off their native background.
+.reveal img.attempt-logo {
+  display: block;
+  width: 3.2em;
+  height: 3.2em;
+  margin: 0.9em 0 0;
+  padding: 0.5em;
+  box-sizing: content-box;
+  background-color: $off-white;
+  border-radius: 14px;
+  box-shadow: 0 0.35em 0.9em rgba(17, 28, 38, 0.35);
+}
+
+.reveal .eyebrow {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-family: "Source Code Pro", monospace;
+  color: $posit-orange;
+  margin-bottom: 0.5em;
+}
+
+.reveal section:has(.eyebrow-first) {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.reveal section:has(.eyebrow-first) > .eyebrow-first {
+  order: 1 !important;
+}
+
+.reveal section:has(.eyebrow-first) > h2 {
+  order: 2 !important;
+  margin-top: -0.2em;
+  margin-bottom: 0.5em;
+}
+
+.reveal section:has(.eyebrow-first) > :not(.eyebrow-first):not(h2):not(.slide-logo):not(.notes) {
+  order: 3 !important;
+}
+
+// Quarto strips .r-stretch from a div, so a computational figure never reaches
+// reveal's stretch plugin and the <img> keeps its hardcoded width/height attrs.
+// Size it against the slide box instead: the canvas is a fixed 1920x1080, so
+// absolute px scale with the deck. ~300px of that goes to the h2 and bullets.
+.reveal .plot-stretch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reveal .plot-stretch .cell,
+.reveal .plot-stretch .cell-output-display,
+.reveal .plot-stretch .quarto-figure,
+.reveal .plot-stretch figure,
+.reveal .plot-stretch figure > p {
+  width: 100%;
+  margin: 0;
+}
+
+.reveal .plot-stretch img {
+  display: block;
+  margin: 0 auto;
+  height: 660px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+// Three-up row of panels, each revealed as its own fragment.
+.reveal .card-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.6em;
+  margin: 0.6em 0 1em;
+}
+
+.reveal .card-row > .card {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 1.4em 1.2em 1.6em;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  background-color: #E8EEF2;
+  border-top: 0.2em solid $posit-orange;
+  border-radius: 6px;
+}
+
+.reveal .card-row > .card > :last-child {
+  margin-bottom: 0;
+}
+
+// Each card is just a step numeral and a short title, so the pair is the whole
+// composition: oversized ghosted numeral above a headline-weight label.
+.reveal .card-row > .card > .num {
+  font-family: "Source Code Pro", monospace;
+  font-size: 2.6em;
+  font-weight: 700;
+  line-height: 1;
+  color: $posit-orange;
+  opacity: 0.35;
+  margin-bottom: 0.1em;
+}
+
+// Titles wrap to different line counts, so top-align the numeral/title pair and
+// let the slack fall to the bottom — first lines then align across all cards.
+.reveal .card-row > .card > .card-title {
+  margin-bottom: auto;
+  font-size: 1.3em;
+  font-weight: 700;
+  line-height: 1.15;
+  color: $dark-blue-3;
+}
+
+// On dark slides the panel reads as a lift off the background, not a light block.
+.reveal .dark .card-row > .card {
+  background-color: rgba(243, 246, 248, 0.09);
+  color: $off-white;
+}
+
+.reveal .dark .card-row > .card > .card-title {
+  color: $off-white;
+}
+
+// The two questions are the payoff of the slide: big, quiet lead-in, loud quote.
+.reveal .pull-quote {
+  margin: 1.2em 0;
+}
+
+.reveal .pull-quote > p:first-child {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: "Source Code Pro", monospace;
+  color: $posit-orange;
+  margin-bottom: 0.4em;
+}
+
+.reveal .pull-quote blockquote {
+  width: 100%;
+  margin: 0;
+  padding: 0.2em 0 0.2em 1em;
+  border-left: 0.2em solid $posit-orange;
+  background: none;
+  box-shadow: none;
+  font-size: 1.5em;
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.reveal .dark .pull-quote blockquote {
+  color: $off-white;
+}
+
+// Punchline: lands big and alone. Everything else recedes so the line has the
+// slide to itself, and it pops in rather than fading like a normal fragment.
+.reveal .punchline {
+  text-align: center;
+  font-size: 1.8em;
+  font-weight: 600;
+  line-height: 1.15;
+  color: $posit-orange;
+  margin-top: 1.2em;
+}
+
+// reveal tags a fragment .visible the instant it lands, so the slide can react
+// to it. Pull the siblings back, heading included. The `> ` in :has() matters:
+// Quarto wraps h2 slides in an outer <section> per vertical stack, and a
+// descendant match there would fade the whole slide, punchline included.
+.reveal section:has(> .punchline.visible) > :not(.punchline):not(.slide-logo):not(.notes) {
+  opacity: 0.14;
+  filter: blur(3px);
+  transition: opacity 0.55s ease, filter 0.55s ease;
+}
+
+.reveal .punchline.visible {
+  animation: punchline-in 0.45s cubic-bezier(0.18, 0.9, 0.22, 1) both;
+}
+
+@keyframes punchline-in {
+  from { opacity: 0; transform: translateY(0.45em) scale(0.92); }
+  to   { opacity: 1; transform: none; }
+}
+
+// Harness diagram: the two endpoints and the empty box are up from the start,
+// then the layers fill in one fragment at a time. reveal's hidden fragments
+// keep their layout box, so the diagram never reflows as they land.
+.reveal .harness-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  margin: 1.4em 0;
+}
+
+.reveal .harness-flow .flow-endpoint {
+  flex: 0 0 5em;
+  padding: 0.7em 0.7em;
+  border: 0.08em solid $blue-50;
+  border-radius: 6px;
+  background-color: $off-white;
+  color: $light-gray;
+  font-size: 0.75em;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.reveal .harness-flow .flow-arrow {
+  flex: 0 0 auto;
+  color: $posit-orange;
+  font-size: 1.5em;
+  line-height: 1;
+}
+
+.reveal .harness-box {
+  flex: 1 1 auto;
+  position: relative;
+  padding: 1.2em 1.2em 1em;
+  border: 0.1em solid $posit-blue;
+  border-radius: 8px;
+  box-shadow: 0 0.4em 1em rgba(17, 28, 38, 0.1);
+}
+
+.reveal .harness-box .harness-label {
+  position: absolute;
+  // `top`/`left` in em resolve against the label's own 0.5em font, so -0.7em
+  // barely lifted it. translateY(-50%) centers it on the border at any size;
+  // left: 2.4em == the box's 1.2em padding, so it lines up with the layers.
+  top: 0;
+  left: 2.4em;
+  transform: translateY(-50%);
+  padding: 0 0.5em;
+  line-height: 1;
+  background-color: $body-bg;
+  font-family: "Source Code Pro", monospace;
+  font-size: 0.62em; // lifted off the floor so the label isn't tiny (review feedback)
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $posit-blue;
+}
+
+.reveal .harness-box .flow-layer {
+  padding: 0.45em 0.8em;
+  border-left: 0.25em solid $posit-orange;
+  border-radius: 4px;
+  background-color: #E8EEF2;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-align: left;
+}
+
+.reveal .harness-box .flow-layer + .flow-layer {
+  margin-top: 0.4em;
+}
+
+// Quarto wraps each div's content in a <p>, which would inherit reveal's block
+// margin and knock the label and arrows off their intended positions.
+.reveal .harness-flow p {
+  margin: 0;
+}
+
+// Three-stop timeline under the harness diagram. The rule is drawn on the
+// container and sits behind the logos, whose own background masks it, so there
+// is one continuous line rather than three butted segments. Stops are evenly
+// spaced: the real gaps (Jul 2025, Aug 2025, Apr 2026) would collide the first
+// two labels, so the dates carry the spacing and the positions do not.
+.reveal .harness-timeline {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 0.6em auto 0;
+  padding: 0 2em;
+  max-width: 80%;
+  // The rule is drawn outward from each name and clipped here, so the container
+  // edges are what end it.
+  overflow: hidden;
+}
+
+.reveal .harness-timeline .timeline-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.reveal .harness-timeline .timeline-logo {
+  // display: block drops the inline line-box leading under the image, so the
+  // logo row is exactly 2.2em and the rule offset above stays arithmetic.
+  display: block;
+  width: 2.2em;
+  height: 2.2em;
+}
+
+.reveal .harness-timeline .timeline-name {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.35em;
+  // The padding is the gap between the text and the rule that meets it.
+  padding: 0 0.6em;
+  background-color: $body-bg;
+  font-size: 0.62em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+// The through-line is drawn out of the *first* name rather than positioned down
+// from the top of the timeline: top: 50% keeps it centred on the name row at any
+// font size, with no offset to re-derive if the logo box, line-height, or margins
+// change. Only the first name draws it, because a line per name would strike
+// through its neighbours; the later names, being later in document order, paint
+// their backgrounds over this one and break the rule around their text. This
+// assumes the three names share a baseline, which holds while each is one line.
+.reveal .harness-timeline .timeline-item:first-child .timeline-name::before,
+.reveal .harness-timeline .timeline-item:first-child .timeline-name::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 100vw;
+  transform: translateY(-50%);
+  // 0.13em of the name's 0.62em font == the 0.08em rule the rest of the
+  // diagram uses.
+  height: 0.13em;
+  background-color: $blue-50;
+}
+
+.reveal .harness-timeline .timeline-item:first-child .timeline-name::before { right: 100%; }
+.reveal .harness-timeline .timeline-item:first-child .timeline-name::after { left: 100%; }
+
+.reveal .harness-timeline .timeline-date {
+  font-family: "Source Code Pro", monospace;
+  font-size: 0.52em;
+  letter-spacing: 0.04em;
+  color: $light-gray;
+}
+
+.reveal .harness-timeline p {
+  margin: 0;
+}
+
+.reveal span.highlight {
+  color: $posit-orange;
+}
+
+// Placeholder for a screenshot not yet dropped in. Reads as a deliberate
+// "art goes here" box, not a broken image. Replace the div with an <img>.
+.reveal .screenshot-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: 620px;
+  margin: 0.4em auto;
+  padding: 1.5em;
+  border: 0.14em dashed $posit-blue;
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    45deg, #EEF3F7, #EEF3F7 14px, #E4ECF2 14px, #E4ECF2 28px);
+  color: $light-gray;
+  text-align: center;
+}
+
+.reveal .screenshot-placeholder .ph-label {
+  font-family: "Source Code Pro", monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $posit-blue;
+}
+
+.reveal .screenshot-placeholder .ph-note {
+  font-size: 0.7em;
+  max-width: 22em;
+}

@@ -1,0 +1,9 @@
+{
+  "permission": {
+    "bash": {
+      "gh api repos/posit-dev/positron/git/trees/main?recursive=1 *": "allow",
+      "grep *": "allow",
+      "head *": "allow"
+    }
+  }
+}

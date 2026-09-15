@@ -1,0 +1,691 @@
+---
+format:
+  revealjs:
+    theme: [default, theme.scss]
+    center: true
+    slide-number: c/t
+    transition: fade
+    transition-speed: fast
+    highlight-style: github
+    footer: "posit::conf(2026)"
+---
+
+# Three Agents, Two Mistakes {.dark}
+::: eyebrow
+or, Designing for LLM-Assisted Data Analysis
+:::
+
+![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}
+
+
+## September 2025... {.dark}
+
+::: {.fragment .pull-quote}
+Two questions prevailed:
+
+> "What model should I use?"
+>
+> "When will my model be available?"
+:::
+
+::: {.fragment .punchline}
+IT WAS THE HARNESS!
+:::
+
+::: notes
+Deliver this like a story, not a status update — the Sophia-from-Golden-Girls "Picture it: Sicily, 1922…" cadence. Set the scene (Atlanta, the Lounge, the buzz) and let the cards land one beat at a time before the turn: the questions everyone asked were about models, and models were the least interesting part.
+
+**Posit::Conf(2025)**. Atlanta, Georgia. 
+The **Positron Lounge**.
+A whirlwind of excitement, questions, and demos for **Positron Assistant**.
+:::
+
+
+## What *is* a harness?
+
+::::: harness-flow
+::: flow-endpoint
+The user's text
+:::
+
+::: flow-arrow
+&rarr;
+:::
+
+:::: harness-box
+::: harness-label
+The harness
+:::
+
+::: {.flow-layer .fragment}
+System prompts
+:::
+
+::: {.flow-layer .fragment}
+Tools
+:::
+
+::: {.flow-layer .fragment}
+File context
+:::
+::::
+
+::: flow-arrow
+&rarr;
+:::
+
+::: flow-endpoint
+The model's response
+:::
+:::::
+
+. . . 
+
+:::: harness-timeline
+::: timeline-item
+![](assets/logos/positron-assistant.png){.timeline-logo}
+
+[Positron Assistant]{.timeline-name}
+
+[July 2025]{.timeline-date}
+:::
+
+::: timeline-item
+![](assets/logos/databot.png){.timeline-logo}
+
+[Databot]{.timeline-name}
+
+[July 2025]{.timeline-date}
+:::
+
+::: timeline-item
+![](assets/logos/posit-assistant.png){.timeline-logo}
+
+[Posit Assistant]{.timeline-name}
+
+[March 2026]{.timeline-date}
+:::
+::::
+
+
+::: notes
+Everything between the user's text and the model's response.
+
+Three stabs at the harness, same two endpoints each time.
+
+The harness is the scaffolding that makes a model useful for a specific task.
+
+It's the piece that Posit can change (easily); it's what we've taken 3 stabs at. 
+:::
+
+
+## Three agents, eighteen months {visibility="hidden"}
+
+
+|   | Shaped for data science? | Deep enough to go start to finish? |
+|-----------------|------------------------------|-------------------------|
+| **Positron Assistant** | [✗]{.no} software-engineering shaped, too complex for its own devs | [✓]{.yes} full IDE reach, wrote real files |
+| **Databot** | [✓]{.yes} incl. human-in-the-loop | [✗]{.no} reports & Quarto, nothing else |
+| **Posit Assistant** | [✓]{.yes} | [✓]{.yes} |
+
+
+# Attempt No.1: Positron Assistant {.dark}
+::: eyebrow
+The "Data Scientist"
+:::
+
+![](assets/logos/positron-assistant.png){.attempt-logo .nostretch}
+
+## Almost *zero* overhead
+
+::: {.eyebrow}
+We forked Copilot
+:::
+
+Open source, batteries included, backed by [Microsoft]{.highlight}.
+
+::: notes
+Set up the trap. Everything about starting from Copilot looked like leverage — the bullets that were here:
+
+- Newly open-sourced, plug and play with Positron, **loaded** with features.
+- Came with tools, UI, and a solid foundation backed by Microsoft.
+- "All" we had to do: let it see plots and data frames, add a couple more providers.
+
+Don't name providers here — gesture at "a couple more providers" and move on. The full list belongs on the next slide only; naming them twice cost ~15s in the last take.
+:::
+
+## We spent *months* iterating
+
+::: {.plot-stretch}
+```{python}
+#| fig-dpi: 200
+"""Upstream Copilot Chat merges carried by the Positron Assistant fork, until its removal."""
+from itertools import accumulate
+
+import matplotlib.patheffects as pe
+import matplotlib.pyplot as plt
+
+# Lines changed per upstream merge that landed on the fork's main branch, measured as
+#   git diff --shortstat <merge>^1 <merge> -- ':(exclude)package-lock.json' \
+#       ':(exclude)dist' ':(exclude)node_modules' ':(exclude)*.svg'
+# run against the first-parent upstream catch-up merges on main in
+# posit-dev/positron-copilot-chat (a fork of microsoft/vscode-copilot-chat, vendored as
+# extensions/copilot from 1.118.0 on). The last row is the 1.124.0 merge after the fork
+# went in-tree, so it comes from posit-dev/positron at 2affe25180 and is scoped with
+# `-- extensions/copilot` (whole-repo would be +470957/-289089, i.e. all of upstream
+# VS Code). Frozen history: the extension was removed 8 days later in b31c8eabf1
+# "Migrate LLM tools and remove Positron Assistant (#14718)".
+CUTOFF = "2026-07-16"
+MERGES = [
+    # version   when         insertions  deletions
+    ("1.103",   "Aug 2025",      16693,     11770),  # first catch-up after forking
+    ("1.104",   "Oct 2025",      86104,     15699),
+    ("1.105",   "Oct 2025",      11458,      2619),
+    ("1.106",   "Dec 2025",     167239,     30109),
+    ("1.107–8", "Feb 2026",     129140,     24995),  # 1.107.0 landed folded into 1.108.0
+    ("1.109",   "Mar 2026",      67441,     14216),
+    ("0.37.5",  "Mar 2026",       2930,     10757),  # pinned back to an older Copilot Chat
+    ("1.111",   "May 2026",      99432,     18372),
+    ("1.124",   "Jul 2026",      62541,     26672),  # in-tree, 8 days before the removal
+]
+
+xs = [f"{version}\n{when}" for version, when, _, _ in MERGES]
+adds = [added for _, _, added, _ in MERGES]
+dels = [removed for _, _, _, removed in MERGES]
+totals = [a + d for a, d in zip(adds, dels)]
+running = list(accumulate(totals))
+
+SURFACE, ADDED, REMOVED, SERIES = "#fcfcfb", "#008300", "#e34948", "#2a78d6"
+INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e3e3df"
+
+# Per-merge on the left, cumulative on the right. The two limits are picked so the
+# tick rows land on the same gridlines (5 steps each), so there is one grid rather
+# than two fighting sets, and the right axis is tinted to the line that reads it.
+PER_MERGE_MAX, CUMULATIVE_MAX = 250_000, 1_000_000
+
+
+def compact(value):
+    """Tick labels in thousands, rolling over to millions at 1M."""
+    if value >= 1_000_000:
+        return f"{value / 1_000_000:g} million"
+    return f"{value // 1000}k"
+
+
+fig, ax = plt.subplots(figsize=(10, 4.8), facecolor=SURFACE)
+ax.set_facecolor(SURFACE)
+
+# Insertions sit below deletions in every bar, separated by a hairline of surface,
+# so the split survives the red/green confusions that colour alone would not.
+ax.bar(range(len(xs)), adds, width=0.66, color=ADDED, label="Insertions (+)", zorder=3)
+ax.bar(range(len(xs)), dels, width=0.66, bottom=[a + 2200 for a in adds],
+       color=REMOVED, label="Deletions (−)", zorder=3)
+
+# Recessive grid and axes: the marks carry the signal.
+ax.grid(axis="y", color=GRID, linewidth=0.8, zorder=0)
+ax.set_axisbelow(True)
+for side in ("top", "right", "left"):
+    ax.spines[side].set_visible(False)
+ax.spines["bottom"].set_color(GRID)
+ax.tick_params(length=0, colors=MUTED, labelsize=9)
+ax.set_yticks(range(0, PER_MERGE_MAX + 1, 50_000))
+ax.set_yticklabels([compact(y) for y in range(0, PER_MERGE_MAX + 1, 50_000)])
+ax.set_ylabel("Lines changed per merge", color=MUTED, fontsize=9)
+ax.set_ylim(0, PER_MERGE_MAX)
+
+ax.set_xticks(range(len(xs)))
+ax.set_xticklabels(xs)
+ax.set_xlim(-0.7, len(xs) - 0.3)
+
+cum = ax.twinx()
+cum.set_ylim(0, CUMULATIVE_MAX)
+cum.set_yticks(range(0, CUMULATIVE_MAX + 1, 200_000))
+cum.set_yticklabels([compact(y) for y in range(0, CUMULATIVE_MAX + 1, 200_000)])
+cum.set_ylabel("Cumulative lines changed", color=SERIES, fontsize=9)
+cum.tick_params(length=0, colors=SERIES, labelsize=9)
+for side in ("top", "right", "left"):
+    cum.spines[side].set_visible(False)
+
+# The line crosses the bars, so it carries a surface-coloured halo to stay legible.
+cum.plot(range(len(xs)), running, color=SERIES, linewidth=2, marker="o", markersize=5,
+         markeredgecolor=SURFACE, markeredgewidth=1.2, zorder=5, label="Cumulative",
+         path_effects=[pe.Stroke(linewidth=5, foreground=SURFACE), pe.Normal()])
+cum.annotate(f"{running[-1]:,}", (len(xs) - 1, running[-1]), textcoords="offset points",
+             xytext=(-9, 4), ha="right", va="bottom", color=INK, fontsize=9,
+             fontweight="bold")
+
+handles = ax.get_legend_handles_labels()[0] + cum.get_legend_handles_labels()[0]
+legend = cum.legend(handles, [h.get_label() for h in handles], loc="upper left",
+                    frameon=False, fontsize=9, handlelength=1.1, borderpad=0,
+                    labelspacing=0.35)
+for text in legend.get_texts():
+    text.set_color(MUTED)
+
+# Direct-label the worst merge only, rather than every segment. The signs repeat
+# the legend's secondary encoding, so the split does not rest on red vs green.
+# Both sit above the bar: either segment is narrower than the numbers are wide.
+peak = max(range(len(xs)), key=lambda i: totals[i])
+ax.annotate(f"+{adds[peak]:,}\n−{dels[peak]:,}", (peak, totals[peak] + 2200),
+            textcoords="offset points", xytext=(0, 5), ha="center", va="bottom",
+            color=INK, fontsize=9, fontweight="bold", linespacing=1.3, zorder=6)
+
+# The cutoff: Positron Assistant removed in favor of Copilot Chat.
+ax.axvline(len(xs) - 0.5, color=MUTED, linewidth=1, linestyle=(0, (3, 3)), zorder=4)
+ax.annotate("Positron Assistant\nremoved (#14718)", (len(xs) - 0.6, 245_000),
+            ha="right", va="top", color=MUTED, fontsize=9)
+
+ax.set_title(f"Upstream Copilot merges",
+             color=INK, fontsize=13, fontweight="bold", loc="left", pad=18)
+ax.text(0, 1.02, "Lines of code changed per merge, and cumulative total",
+        transform=ax.transAxes, color=MUTED, fontsize=9.5, va="bottom")
+
+fig.tight_layout()
+plt.show()
+```
+
+:::
+
+::: notes
+Tell the story behind the chart, don't just read it. We forked Copilot because it looked like leverage — and then every upstream release meant re-merging someone else's fast-moving codebase into ours. Each bar is a week we spent paying rent on that decision instead of building for data science. Walk them to the cumulative number: this is *why* we did what comes next.
+
+What we spent those months on:
+
+- Tools to view a plot, inspect a data frame
+- Providers: Anthropic, Bedrock, OpenAI… then Snowflake, Databricks, Gemini, Ollama, DeepSeek
+- Constant churn from upstream: endless merges, a fast-moving ecosystem
+
+This is the only slide where the provider list gets said in full — don't repeat it on the "Almost zero overhead" slide before this one.
+:::
+
+## ... and setting migrations {visibility="hidden"}
+
+![](assets/images/its-fine.gif){.center-image .r-stretch}
+
+## It still wasn't great
+
+::: r-fit-text
+Data science felt like an [afterthought]{.highlight}.
+:::
+
+::: notes
+- Painful to get it to do the right thing, use the right tool
+- Data science felt like an afterthought — it wrote code without understanding the analysis
+- So many constructs (tools, agents, prompts, shifting abstractions) that the UX was hard to perfect
+- Meanwhile, other harnesses moved toward new architectures like **skills**
+- Maximum of 47 tools available to Positron Assistant
+:::
+
+--- 
+
+::::: lesson-split
+::: split-figure
+![](./assets/images/trenchcoat.jpg){.center-image .nostretch}
+:::
+
+:::: lesson
+::: eyebrow
+Lesson 1
+:::
+
+Software engineering harnesses lack the [**understanding**]{.highlight} for use in data science.
+::::
+:::::
+
+::: notes
+The trenchcoat: three data-science features in a code-first harness, trying to pass as one coherent product.
+
+- Just a more "intelligent" autocompletion
+
+Say the "three features in a trenchcoat" framing explicitly — last take simplified this to "it was basically GitHub Copilot," which drops the joke the image is making.
+:::
+
+# Attempt No.2: Databot {.dark}
+
+::: eyebrow
+An expert in one thing
+:::
+
+![](assets/logos/databot.png){.attempt-logo .nostretch}
+
+![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}
+
+## What if the model just… had the session?
+
+::: {.eyebrow .eyebrow-first}
+July 2025
+:::
+
+. . . 
+
+### `[ writeFile, executeCode ]`
+
+::: notes
+July 2025 is when Databot first shipped: 0.0.4 hit Open VSX on 18 July 2025, with exactly these two tools in `src/tools.ts`. The announcement blog post came later, 28 August 2025 — if someone cites that date, both are right. The timeline earlier in the deck is on first-release dates throughout.
+
+Remember: contrast with Positron's **47** tools at the same moment. 
+
+Why? Keep it simple; these are powerful.
+
+Different premise entirely: not "help write code" but "run the analysis."
+:::
+
+## This is what it looked like {.dark visibility="hidden"}
+
+::: {.eyebrow .eyebrow-first}
+Databot, live in the IDE
+:::
+
+::: screenshot-placeholder
+::: ph-label
+Screenshot goes here
+:::
+::: ph-note
+Databot session in Positron — the chat running code against a live R/Python session, a plot in the conversation, suggested next steps. *Sam to drop in.*
+:::
+:::
+
+::: notes
+Show, don't tell — let people see the session, the plot, the check-in rhythm before we describe it.
+:::
+
+## Autonomous AI was [*scary*]{.highlight} at the time.
+
+::: notes
+Credit Databot: the good instincts here became durable design. The four things it brought (were bullets on-slide):
+
+- The **shape** of data work
+- **Human-in-the-loop** by default
+- A tool-call budget that forced summarize-and-check-in
+- Always 3 to 5 **suggested next steps**
+:::
+
+## The [autonomy]{.highlight} was real. The [aperture]{.highlight} was tiny.
+
+::: notes
+Enunciate "aperture" deliberately — it's the highlighted word in the title and it got swallowed/mumbled in the last take.
+
+Correction to the story I used to tell: Databot could reach a lot — `readLines()`, `system()`, anything you can write in R. But every one of those paths ran through executeCode. Nothing was first-class, so nothing could be made good.
+
+What it didn't have, first-class (was the incremental list on-slide):
+
+- No `edit` — whole-file overwrite only. Surgical editing didn't land until **January 2026**
+- No `read`, `ls`, `grep`. The system prompt told it to *"do a recursive search"* — by writing code
+- It saw variable **names and types**, never values. Plots were a single boolean: *a plot is visible*
+- No Shiny until **Feb 2026**. No cleaning mode until **April 2026**
+:::
+
+##
+
+:::: lesson
+::: eyebrow
+Lesson 2
+:::
+
+An agent's autonomy is only as good as [**what it has access to**]{.highlight}.
+::::
+
+::: notes
+Land Lesson 2. Note out loud that it points the opposite way from Lesson 1 — we'll pay that off in the conclusion.
+:::
+
+# Attempt No.3: Posit Assistant {.dark}
+
+::: eyebrow
+Start to finish
+:::
+
+![](assets/logos/posit-assistant.png){.attempt-logo .nostretch}
+
+![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}
+
+## Not a rewrite. A lineage.
+
+::: {.eyebrow .eyebrow-first}
+One codebase, two parents
+:::
+
+
+::: notes
+The codebase question and the inheritance question have different answers. We kept Databot's code and Positron Assistant's ambitions.
+
+The bullets that were on-slide:
+
+- Posit Assistant is **Databot's codebase**, grown up.
+- We kept the one cheap to change, threw away the one carrying **790k lines** of someone else's merges.
+- It inherited from **both** — Databot the shape, Positron Assistant the reach.
+- Both agreed on what still separates it from Claude Code, Codex, opencode: **it belongs in the IDE.**
+
+The IDE point is common ground, not a contribution from either side — neither team ever seriously considered building a terminal agent. That's why it isn't on either "what X taught us" slide.
+
+Ship dates if asked: RStudio April 2026, Positron June 2026 — first agent to live in both.
+:::
+
+## Why were there ever two?
+
+::: {.eyebrow .eyebrow-first}
+Even we asked...
+:::
+
+
+::: notes
+The two bets, in full (were bullets on-slide):
+
+- Positron Assistant was the conservative bet: familiar and it rarely surprised you.
+- Databot let a model run code in *your* session, unasked. In 2025 that felt like a lot to ask of people.
+    - It was a grand experiment, to take the pulse
+:::
+
+## Two philosophies of context {visibility="hidden"}
+
+::: {.eyebrow .eyebrow-first}
+Who goes and gets it?
+:::
+
+The user assembles it — or [the model goes and gets it]{.highlight}.
+
+. . .
+
+Only the second survives contact with a real analysis — if the tools reach far enough.
+
+::: notes
+The architectural fork. This is where Lesson 2 gets cashed in. The two philosophies (were bullets on-slide):
+
+- **Copilot:** *the user* assembles it — `@-mentions`, file pickers, attachments
+- **Databot / Claude Code:** hand the model a few general tools and trust it to go find what it needs
+:::
+
+## What Databot taught us
+
+::: r-fit-text
+[The shape.]{.highlight}
+:::
+
+::: notes
+Every one of these is a data-work decision that a code-first harness would never have arrived at on its own (were an incremental list on-slide):
+
+- Live **session access** — it sees your objects, no script-to-disk detour
+- **Plots in the conversation** — visible to you and the model at the same time
+- **Iterate and check in** — a few lines, a summary, suggested next steps
+- **Quarto as a first-class output**, not a file that happens to have a `.qmd` suffix
+:::
+
+## What Positron Assistant taught us
+
+::: r-fit-text
+[The reach.]{.highlight}
+:::
+
+::: notes
+This is the half people forget. The fork was the mistake that told us what to build. (Was an incremental list on-slide:)
+
+- **Ambient context** — the editor, the selection, the console history. Nobody should have to type `@`
+- Don't just *see* the IDE — **drive** it. Switch views, preview a Quarto doc, update packages
+- **Bring your own key**: cost and security are the user's call, and their IT department's
+
+BYOK especially — that's not a feature, it's a procurement reality. Orgs don't get to pick one model.
+
+Careful with the first bullet: Databot already read session variables (names and types) at launch. What it didn't have was the editor and the selection. Keep the emphasis there.
+:::
+
+## And some things neither one had
+
+::: {.eyebrow .eyebrow-first}
+Genuinely new
+:::
+
+::: {.punchline}
+Cleaning mode · Plan mode · Skills · Subagents
+:::
+
+::: notes
+Worth saying plainly: the best features in the product today are younger than the merger. Neither parent gets the credit. (Was an incremental list on-slide:)
+
+- **Cleaning mode** — surfaces *questions*, not finished answers. Shipped April 2026.
+    - Mechanically: it drives every substantive cleaning decision through an `AskUser` tool call rather than just acting. Several questions can fire in parallel and render as tabs, so it can ask about multiple columns at once instead of one at a time. The system prompt explicitly forbids the model from silently applying its own "recommended" fix, even if you cancel out of a question.
+- **Plan mode** — agree on the approach before any code runs. Shipped Feb 2026.
+    - Good detail if asked how it's enforced, since it's a little counterintuitive: there's no hard tool lock in Plan mode itself — that's a *different*, separate read-only mode. Plan mode's enforcement is the exit gate: leaving it surfaces the full plan file and asks "Exit Plan mode and begin implementation?"; decline and it keeps planning.
+- **Skills** — Shiny, Quarto, predictive modelling, Snowflake
+    - Precisely: 13 skills ship in the repo, 12 of which the model can see and choose to load itself (the 13th is a slash-command-only logging skill, deliberately hidden from the model). Shiny and predictive modelling are each actually two skills under the hood — split by theming and by language (R/Python) respectively.
+- **Subagents** — send a scout to read, keep the findings, drop the transcript
+    - A subagent starts a brand-new conversation seeded only with the task you hand it — it does not inherit anything from the conversation so far. Only its final answer comes back into your context; the full transcript of everything it did is saved and stays inspectable in the UI, it just never costs your conversation any tokens. Nesting is capped at two levels deep, and the model can't raise that ceiling itself.
+
+Deliver cleaning mode and plan mode as two separate, complete sentences. Last take let cleaning mode's definition trail off mid-thought into plan mode's — finish "surfaces questions, not finished answers" before starting the next one.
+:::
+
+
+## How we built it
+
+:::::::::::: card-row
+::::: card
+::: num
+01
+:::
+
+::: card-title
+Subtract tools
+:::
+:::::
+
+::::: card
+::: num
+02
+:::
+
+::: card-title
+Add skills
+:::
+:::::
+
+::::: card
+::: num
+03
+:::
+
+::: card-title
+Our own UX
+:::
+:::::
+:::::::::::: 
+
+::: notes
+Three moves. Notice subtraction comes first — that's the payoff of Lesson 1. (Card bodies were on-slide:)
+
+- **Subtract tools** — 47 down to 22. We inherited a whole VS Code tool ecosystem and exposed *none* of it.
+- **Add skills** — a new architecture at the time. Twelve skills behind *one* tool; they cost nothing until they're used.
+- **Our own UX** — Microsoft is a software company; Posit is a data company. Surface exactly what matters, when it matters.
+:::
+
+## The tool budget {visibility="hidden"}
+
+::: {.eyebrow .eyebrow-first}
+What subtraction actually looked like
+:::
+
+|  | Positron Assistant | Posit Assistant |
+|-----------------------|------|------------------------|
+| Tools offered to the model | 47 | **22** in Positron, **17** in RStudio |
+| Always-on core, every host | — | **13** |
+| Inherited VS Code tools exposed | all of them | **zero** |
+
+That last row is one line of code: `VSCODE_TOOL_PERMISSIONS = {}`.
+
+::: notes
+The allowlist is empty *on purpose* — the comment says explicit control, rather than including everything tagged for us by default. We inherited an ecosystem and opted out of all of it.
+:::
+
+## So where did the capability go? {visibility="hidden"}
+
+::: {.eyebrow .eyebrow-first}
+Fewer tools ≠ less reach
+:::
+
+. . . 
+
+::: {.punchline}
+Breadth moved out of the tool list.
+:::
+
+::: notes
+This is the answer to the tension in the conclusion. You don't buy reach with tool count. You buy it with indirection — into things that cost no tokens until they're used (were an incremental list on-slide):
+
+- `skill` — one tool fronting **12 skills**, each loaded only when it's relevant
+- `explore`, `launchSubagent` — an entire nested agent behind a single call
+- `positronCommand` — the whole IDE command palette behind **one** validated door
+
+Protect this slide's time. Last take ran short and skipped this content entirely ("I'm running out of time, let me fold this into the previous slide") — if you're behind schedule, the provider list on "We spent months iterating" is the trim target, not this.
+:::
+
+##
+
+> "When exploring data, it feels a lot like Databot. When coding, it feels a lot like Claude Code."
+>
+> — Joe Cheng
+
+::: notes
+The synthesis, in one sentence. Let it land before moving on.
+
+Double-check pronunciation of "Cheng" out loud — the last take's recording read back closer to "Chang" both times it was said.
+:::
+
+# In conclusion {.dark}
+
+![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}
+
+## The two lessons pull against each other{visibility="hidden"}
+
+::: eyebrow
+The real tradeoff
+:::
+
+More access *(Lesson 2)* — but every addition costs [changeability]{.highlight} *(Lesson 1)*.
+
+. . .
+
+The way out isn't more machinery — it's [fewer, curated tools]{.highlight}.
+
+That's the bet Posit Assistant makes.
+
+##  The real change was in the harness, not the models. {.dark}
+
+Focus not on the model itself, but rather on how the model interacts with [the work you're doing]{.highlight}.
+
+::: notes
+Close the loop from the hook. Model matters little; harness matters a lot.
+
+Resolve the tension explicitly. Curation is how you get reach without paying full complexity cost.
+
+- **Lesson 2** says: give the agent more access.
+- **Lesson 1** says: every addition costs you changeability.
+- **reach** vs **simplicity** — the way out is **fewer, more curated tools.**
+
+Rehearse this transition as a fixed, memorized line. This is the thesis payoff, and the last take arrived here already out of time — it came out as live, on-mic editing ("I don't want this... let me get rid of this") instead of the resolution. Practice it in isolation until it's automatic, independent of how the rest of the talk went.
+:::
+
+## Thank you {.dark}
+
+::: eyebrow
+Sam Clark · Posit, PBC
+:::
+
+Questions?
+
+![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}

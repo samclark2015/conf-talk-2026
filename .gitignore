@@ -1,0 +1,23 @@
+# Quarto
+/.quarto/
+*_files/
+*_cache/
+*.quarto_ipynb
+/.quarto/
+index.html
+presentation.html
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Playwright MCP output
+.playwright-mcp/
