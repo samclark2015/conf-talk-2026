@@ -686,6 +686,10 @@ Rehearse this transition as a fixed, memorized line. This is the thesis payoff, 
 Sam Clark · Posit, PBC
 :::
 
-Questions?
+::: {layout-ncol="1"}
+![](assets/qr-repo.png){width="220"}
+
+`github.com/samclark2015/conf-talk-2026`
+:::
 
 ![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}

@@ -1,36 +1,30 @@
-# Three Agents, Two Mistakes — posit::conf(2026)
+# Three Agents, Two Mistakes
 
-Quarto reveal.js talk: *Designing for LLM-Assisted Data Analysis.*
+A talk from posit::conf(2026): *Designing for LLM-Assisted Data Analysis.*
 
-## Build
+The talk walks through three AI coding/data-analysis agents Posit has
+shipped — Positron Assistant, Databot, and Posit Assistant — and the design
+lessons learned (and re-learned) along the way:
+
+- **Lesson 1:** every feature you add costs you changeability.
+- **Lesson 2:** an agent's autonomy is only as good as what it can access.
+
+## Viewing the slides
+
+The deck is built with [Quarto](https://quarto.org) reveal.js. Open
+[`index.html`](index.html) in a browser, or render it yourself:
 
 ```bash
-quarto render presentation.qmd     # → presentation.html
-quarto preview presentation.qmd    # live-reload while editing
+quarto render index.qmd     # → index.html
+quarto preview index.qmd    # live-reload while editing
 ```
 
-## Layout
+## What's in this repo
 
-- `presentation.qmd` — the deck (one section per agent, Lesson callouts, conclusion)
-- `theme.scss` — Posit brand reveal.js theme (Open Sans / Source Code Pro, blue+gray+orange)
-- `assets/logos/` — official Posit logos, SVG (white/reverse for dark slides, full-color/black for light)
-- `assets/fonts/` — Open Sans + Source Code Pro
+- [`index.qmd`](index.qmd) — the talk itself
+- [`theme.scss`](theme.scss) — Posit brand reveal.js theme
+- [`assets/`](assets/) — logos, fonts, and other slide assets
 
-## Structure
+## Author
 
-1. Title + hook (the two questions from last year's Conf)
-2. What a harness is / big-idea comparison table
-3. **Agent 1 — Positron Assistant** → Lesson 1: features cost changeability
-4. **Agent 2 — Databot** → Lesson 2: autonomy is only as good as access
-5. **Agent 3 — Posit Assistant** → subtract tools · add skills · our own UX
-6. Conclusion: the two lessons pull against each other → callback to the hook
-
-Speaker notes live in `::: {.notes}` blocks (press `S` in the deck for the
-speaker view).
-
-## Editing notes
-
-- Headlines are Light weight, sentence case. Eyebrows are the only place
-  Source Code Pro / uppercase is used.
-- On dark slides use the white/reverse logo, never the full-color one.
-- No emoji (brand rule) — use the `.yes` / `.no` spans for check/cross marks.
+Sam Clark · Posit, PBC

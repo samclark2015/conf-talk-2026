@@ -21,3 +21,5 @@ __pycache__/
 
 # Playwright MCP output
 .playwright-mcp/
+
+**/*.quarto_ipynb
