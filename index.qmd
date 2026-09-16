@@ -628,9 +628,9 @@ Sam Clark · Posit, PBC
 :::
 
 ::: {layout-ncol="1"}
-![](assets/qr-repo.png){width="220"}
+![](assets/qr-slides.png){width="220"}
 
-`github.com/samclark2015/conf-talk-2026`
+`samclark2015.github.io/conf-talk-2026`
 :::
 
 ![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}

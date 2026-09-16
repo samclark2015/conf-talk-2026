@@ -1,5 +1,6 @@
 project:
   title: "Conf Talk 2026"
+  output-dir: _site
   resources:
     - theme.scss
 
