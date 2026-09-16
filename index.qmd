@@ -533,7 +533,7 @@ Genuinely new
 :::
 
 ::: {.punchline}
-Cleaning mode · Plan mode · Skills · Subagents
+Cleaning mode · Skills · Plugins
 :::
 
 ::: notes
@@ -541,12 +541,8 @@ Worth saying plainly: the best features in the product today are younger than th
 
 - **Cleaning mode** — surfaces *questions*, not finished answers. Shipped April 2026.
     - Mechanically: it drives every substantive cleaning decision through an `AskUser` tool call rather than just acting. Several questions can fire in parallel and render as tabs, so it can ask about multiple columns at once instead of one at a time. The system prompt explicitly forbids the model from silently applying its own "recommended" fix, even if you cancel out of a question.
-- **Plan mode** — agree on the approach before any code runs. Shipped Feb 2026.
-    - Good detail if asked how it's enforced, since it's a little counterintuitive: there's no hard tool lock in Plan mode itself — that's a *different*, separate read-only mode. Plan mode's enforcement is the exit gate: leaving it surfaces the full plan file and asks "Exit Plan mode and begin implementation?"; decline and it keeps planning.
 - **Skills** — Shiny, Quarto, predictive modelling, Snowflake
     - Precisely: 13 skills ship in the repo, 12 of which the model can see and choose to load itself (the 13th is a slash-command-only logging skill, deliberately hidden from the model). Shiny and predictive modelling are each actually two skills under the hood — split by theming and by language (R/Python) respectively.
-- **Subagents** — send a scout to read, keep the findings, drop the transcript
-    - A subagent starts a brand-new conversation seeded only with the task you hand it — it does not inherit anything from the conversation so far. Only its final answer comes back into your context; the full transcript of everything it did is saved and stays inspectable in the UI, it just never costs your conversation any tokens. Nesting is capped at two levels deep, and the model can't raise that ceiling itself.
 
 Deliver cleaning mode and plan mode as two separate, complete sentences. Last take let cleaning mode's definition trail off mid-thought into plan mode's — finish "surfaces questions, not finished answers" before starting the next one.
 :::
@@ -594,75 +590,20 @@ Three moves. Notice subtraction comes first — that's the payoff of Lesson 1. (
 - **Our own UX** — Microsoft is a software company; Posit is a data company. Surface exactly what matters, when it matters.
 :::
 
-## The tool budget {visibility="hidden"}
-
-::: {.eyebrow .eyebrow-first}
-What subtraction actually looked like
-:::
-
-|  | Positron Assistant | Posit Assistant |
-|-----------------------|------|------------------------|
-| Tools offered to the model | 47 | **22** in Positron, **17** in RStudio |
-| Always-on core, every host | — | **13** |
-| Inherited VS Code tools exposed | all of them | **zero** |
-
-That last row is one line of code: `VSCODE_TOOL_PERMISSIONS = {}`.
-
-::: notes
-The allowlist is empty *on purpose* — the comment says explicit control, rather than including everything tagged for us by default. We inherited an ecosystem and opted out of all of it.
-:::
-
-## So where did the capability go? {visibility="hidden"}
-
-::: {.eyebrow .eyebrow-first}
-Fewer tools ≠ less reach
-:::
-
-. . . 
-
-::: {.punchline}
-Breadth moved out of the tool list.
-:::
-
-::: notes
-This is the answer to the tension in the conclusion. You don't buy reach with tool count. You buy it with indirection — into things that cost no tokens until they're used (were an incremental list on-slide):
-
-- `skill` — one tool fronting **12 skills**, each loaded only when it's relevant
-- `explore`, `launchSubagent` — an entire nested agent behind a single call
-- `positronCommand` — the whole IDE command palette behind **one** validated door
-
-Protect this slide's time. Last take ran short and skipped this content entirely ("I'm running out of time, let me fold this into the previous slide") — if you're behind schedule, the provider list on "We spent months iterating" is the trim target, not this.
-:::
-
 ##
 
-> "When exploring data, it feels a lot like Databot. When coding, it feels a lot like Claude Code."
+> "When exploring data, it feels a lot like Databot, and when coding, it feels a lot like Claude Code."
 >
-> — Joe Cheng
+> — Joe Cheng, CTO @ Posit
 
 ::: notes
 The synthesis, in one sentence. Let it land before moving on.
-
-Double-check pronunciation of "Cheng" out loud — the last take's recording read back closer to "Chang" both times it was said.
 :::
 
 # In conclusion {.dark}
 
 ![](assets/logos/posit-horiz-white.svg){.slide-logo .nostretch}
 
-## The two lessons pull against each other{visibility="hidden"}
-
-::: eyebrow
-The real tradeoff
-:::
-
-More access *(Lesson 2)* — but every addition costs [changeability]{.highlight} *(Lesson 1)*.
-
-. . .
-
-The way out isn't more machinery — it's [fewer, curated tools]{.highlight}.
-
-That's the bet Posit Assistant makes.
 
 ##  The real change was in the harness, not the models. {.dark}
 
